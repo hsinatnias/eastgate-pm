@@ -73,6 +73,8 @@ VITE_ANTHROPIC_API_KEY=your_api_key_here
 ---
 
 ## 📁 Project Structure
+
+```
 src/
 ├── components/
 │   ├── Sidebar.tsx      # Navigation sidebar
@@ -88,6 +90,7 @@ src/
 ├── types/
 │   └── index.ts         # Shared TypeScript types
 └── App.tsx              # Root component and routing
+```
 ---
 
 ## 🧠 Key Technical Decisions
