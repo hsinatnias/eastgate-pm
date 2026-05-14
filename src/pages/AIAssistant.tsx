@@ -18,26 +18,60 @@ export default function AIAssistant() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSend = async (text: string) => {
-    if (!text.trim()) return;
+const handleSend = async (text: string) => {
+  if (!text.trim()) return;
 
-    const userMessage: Message = { role: 'user', content: text };
-    setMessages((prev) => [...prev, userMessage]);
-    setInput('');
-    setLoading(true);
+  const userMessage: Message = { role: 'user', content: text };
+  setMessages((prev) => [...prev, userMessage]);
+  setInput('');
+  setLoading(true);
 
-    // API call will go here later
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          content: '⚙️ AI assistant coming soon — API key not configured yet. Check back tonight!'
-        }
-      ]);
-      setLoading(false);
-    }, 800);
-  };
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': import.meta.env.VITE_ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 1024,
+        system: `You are an AI project management assistant for a SaaS development company. 
+        You help with task prioritization, project risk analysis, workload balancing, 
+        client report generation, and project estimation. 
+        The team has 4 members: Yuki (Admin), Kenji, Aiko, and Ryo.
+        Current projects: SaaS Portal v2 (68% done), Mobile App MVP (91% done), 
+        E-commerce Platform (34% done), API Integration Hub (55% done).
+        Be concise, professional, and actionable in your responses.`,
+        messages: [
+          ...messages,
+          userMessage
+        ],
+      }),
+    });
+
+    const data = await response.json();
+    
+    const assistantMessage: Message = {
+      role: 'assistant',
+      content: data.content[0].text,
+    };
+
+    setMessages((prev) => [...prev, assistantMessage]);
+  } catch (error) {
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: 'assistant',
+        content: 'Sorry, something went wrong. Please try again.',
+      },
+    ]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
