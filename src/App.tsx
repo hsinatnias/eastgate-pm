@@ -3,6 +3,8 @@ import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Kanban from './pages/Kanban';
 import TimeTracking from './pages/TimeTracking';
+import AIAssistant from './pages/AIAssistant';
+
 
 function App() {
   const [page, setPage] = useState('dashboard');
@@ -12,6 +14,7 @@ function App() {
       {page === 'dashboard' && <Dashboard />}
       {page === 'tasks' && <Kanban />}
       {page == 'time' && <TimeTracking />}
+      {page === 'ai' && <AIAssistant />}
     </Layout>
   );
 }
