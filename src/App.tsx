@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import Kanban from './pages/Kanban';
 import TimeTracking from './pages/TimeTracking';
 import AIAssistant from './pages/AIAssistant';
+import Projects from './pages/Projects';
 
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
       {page === 'tasks' && <Kanban />}
       {page == 'time' && <TimeTracking />}
       {page === 'ai' && <AIAssistant />}
+      {page === 'projects' && <Projects />}
     </Layout>
   );
 }
