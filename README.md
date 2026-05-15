@@ -37,6 +37,7 @@ A full-stack, AI-powered project management platform built for SaaS development 
 | Database | Supabase (PostgreSQL) |
 | Authentication | Supabase Auth (JWT) |
 | AI | Anthropic Claude API (claude-sonnet-4-5) |
+| CI/CD | GitHub Actions |
 | Deployment | Vercel |
 | Version control | Git + GitHub |
 
@@ -113,10 +114,10 @@ src/
 
 - [x] Supabase database integration (persistent data)
 - [x] User authentication (Supabase Auth + protected routes)
+- [x] GitHub Actions CI/CD pipeline
 - [ ] Timer persistence — sync running timer seconds to database every 10 seconds
 - [ ] Real-time multi-user timer sync
 - [ ] PDF export for generated reports
-- [ ] GitHub Actions CI/CD pipeline
 - [ ] Mobile responsive layout
 
 ---
