@@ -109,7 +109,8 @@ src/
 
 ## 🗺 Roadmap
 
-- [ ] Supabase database integration (persistent data)
+- [x] Supabase database integration (persistent data)
+- [ ] Timer persistence — sync running timer seconds to database every 10 seconds
 - [ ] User authentication (Supabase Auth)
 - [ ] Real-time multi-user timer sync
 - [ ] PDF export for generated reports
