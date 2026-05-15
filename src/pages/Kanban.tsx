@@ -90,7 +90,7 @@ export default function Kanban() {
         </button>
       </div>
 
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {columns.map((col) => {
           const colTasks = getTasksByStatus(col.id);
           return (

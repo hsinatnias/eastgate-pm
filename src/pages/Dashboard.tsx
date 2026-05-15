@@ -17,7 +17,7 @@ export default function Dashboard() {
     <div className="flex flex-col gap-5">
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map((stat) => (
           <div key={stat.label} className="bg-white rounded-xl p-4 border border-gray-100">
             <p className="text-xs text-gray-400 mb-1">{stat.label}</p>
