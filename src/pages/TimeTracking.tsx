@@ -112,7 +112,7 @@ export default function TimeTracking() {
     <div className="flex flex-col gap-5">
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {stats.map((stat) => (
           <div key={stat.label} className="bg-white rounded-xl p-4 border border-gray-100">
             <p className="text-xs text-gray-400 mb-1">{stat.label}</p>
@@ -131,57 +131,59 @@ export default function TimeTracking() {
           </button>
         </div>
 
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-gray-50">
-              <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Member</th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Task</th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Project</th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Duration</th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Billable</th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Status</th>
-              <th className="px-5 py-3"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {entries.map((entry) => (
-              <tr key={entry.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors last:border-0">
-                <td className="px-5 py-3">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${assigneeColors[entry.initials]}`}>
-                      {entry.initials}
-                    </div>
-                    <span className="text-xs text-gray-700">{entry.member}</span>
-                  </div>
-                </td>
-                <td className="px-5 py-3 text-xs text-gray-700">{entry.task}</td>
-                <td className="px-5 py-3 text-xs text-gray-400">{entry.project}</td>
-                <td className="px-5 py-3">
-                  <span className={`text-xs font-mono font-medium ${entry.running ? 'text-green-500' : 'text-gray-700'}`}>
-                    {formatTime(entry.seconds)}
-                    {entry.running && ' ●'}
-                  </span>
-                </td>
-                <td className="px-5 py-3 text-xs font-medium text-gray-700">
-                  {formatYen(entry.billable)}
-                </td>
-                <td className="px-5 py-3">
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${entry.running ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
-                    {entry.running ? 'Running' : 'Logged'}
-                  </span>
-                </td>
-                <td className="px-5 py-3">
-                  <button
-                    onClick={() => handleToggle(entry.id)}
-                    className={`text-xs px-2.5 py-1 rounded-lg font-medium transition-colors ${entry.running ? 'bg-red-50 text-red-500 hover:bg-red-100' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
-                  >
-                    {entry.running ? 'Stop' : 'Start'}
-                  </button>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[600px]">
+            <thead>
+              <tr className="border-b border-gray-50">
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Member</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Task</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Project</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Duration</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Billable</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-400">Status</th>
+                <th className="px-5 py-3"></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {entries.map((entry) => (
+                <tr key={entry.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors last:border-0">
+                  <td className="px-5 py-3">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${assigneeColors[entry.initials]}`}>
+                        {entry.initials}
+                      </div>
+                      <span className="text-xs text-gray-700">{entry.member}</span>
+                    </div>
+                  </td>
+                  <td className="px-5 py-3 text-xs text-gray-700">{entry.task}</td>
+                  <td className="px-5 py-3 text-xs text-gray-400">{entry.project}</td>
+                  <td className="px-5 py-3">
+                    <span className={`text-xs font-mono font-medium ${entry.running ? 'text-green-500' : 'text-gray-700'}`}>
+                      {formatTime(entry.seconds)}
+                      {entry.running && ' ●'}
+                    </span>
+                  </td>
+                  <td className="px-5 py-3 text-xs font-medium text-gray-700">
+                    {formatYen(entry.billable)}
+                  </td>
+                  <td className="px-5 py-3">
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${entry.running ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
+                      {entry.running ? 'Running' : 'Logged'}
+                    </span>
+                  </td>
+                  <td className="px-5 py-3">
+                    <button
+                      onClick={() => handleToggle(entry.id)}
+                      className={`text-xs px-2.5 py-1 rounded-lg font-medium transition-colors ${entry.running ? 'bg-red-50 text-red-500 hover:bg-red-100' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                    >
+                      {entry.running ? 'Stop' : 'Start'}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

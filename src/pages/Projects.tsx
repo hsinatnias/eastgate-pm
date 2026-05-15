@@ -102,8 +102,8 @@ export default function Projects() {
           ))}
         </div>
 
-        {/* Column headers */}
-        <div className="grid grid-cols-12 px-5 py-3 border-b border-gray-50 bg-gray-50">
+        {/* Column headers - hidden on mobile */}
+        <div className="hidden lg:grid grid-cols-12 px-5 py-3 border-b border-gray-50 bg-gray-50">
           <div className="col-span-4 text-xs font-medium text-gray-400">Project</div>
           <div className="col-span-2 text-xs font-medium text-gray-400">Client</div>
           <div className="col-span-1 text-xs font-medium text-gray-400">Status</div>
@@ -115,58 +115,54 @@ export default function Projects() {
 
         {/* Rows */}
         {filtered.map((project) => (
-          <div
-            key={project.id}
-            className="grid grid-cols-12 px-5 py-3 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer last:border-0 items-center"
-          >
-            {/* Project name */}
-            <div className="col-span-4 flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${project.color} flex-shrink-0`} />
-              <span className="text-xs font-medium text-gray-900">{project.name}</span>
-            </div>
+        <div
+          key={project.id}
+          className="flex flex-col lg:grid lg:grid-cols-12 px-5 py-3 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer last:border-0 gap-2 lg:gap-0 lg:items-center"
+        >
+          {/* Project name */}
+          <div className="col-span-4 flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${project.color} flex-shrink-0`} />
+            <span className="text-xs font-medium text-gray-900">{project.name}</span>
+          </div>
 
-            {/* Client */}
+          {/* Mobile row — client + status side by side */}
+          <div className="flex items-center justify-between lg:contents">
             <div className="col-span-2 text-xs text-gray-400">{project.client}</div>
-
-            {/* Status */}
             <div className="col-span-1">
               <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusStyles[project.status]}`}>
                 {project.status}
               </span>
             </div>
+          </div>
 
-            {/* Progress */}
-            <div className="col-span-2">
-              <div className="flex items-center gap-2">
-                <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full ${project.color} rounded-full`}
-                    style={{ width: `${project.progress}%` }}
-                  />
-                </div>
-                <span className="text-xs text-gray-400 w-6">{project.progress}%</span>
-              </div>
-            </div>
-
-            {/* Due */}
-            <div className="col-span-1 text-xs text-gray-400">{project.due}</div>
-
-            {/* Budget */}
-            <div className="col-span-1 text-xs font-medium text-gray-700">{project.budget}</div>
-
-            {/* Team */}
-            <div className="col-span-1 flex -space-x-1">
-              {(project.team || []).map((member) => (
+          {/* Progress */}
+          <div className="col-span-2">
+            <div className="flex items-center gap-2">
+              <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
                 <div
-                  key={member}
-                  className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium border border-white ${assigneeColors[member]}`}
-                >
-                  {member[0]}
-                </div>
-              ))}
+                  className={`h-full ${project.color} rounded-full`}
+                  style={{ width: `${project.progress}%` }}
+                />
+              </div>
+              <span className="text-xs text-gray-400 w-6">{project.progress}%</span>
             </div>
           </div>
-        ))}
+
+          {/* Due + Budget + Team - hidden on mobile */}
+          <div className="hidden lg:block col-span-1 text-xs text-gray-400">{project.due}</div>
+          <div className="hidden lg:block col-span-1 text-xs font-medium text-gray-700">{project.budget}</div>
+          <div className="col-span-1 flex -space-x-1">
+            {(project.team || []).map((member) => (
+              <div
+                key={member}
+                className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium border border-white ${assigneeColors[member]}`}
+              >
+                {member[0]}
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
       </div>
     </div>
   );
