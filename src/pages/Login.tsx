@@ -6,6 +6,7 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
@@ -20,6 +21,16 @@ export default function Login() {
     }
   };
 
+  const handleDemo = async () => {
+    setDemoLoading(true);
+    setError(null);
+    const { error } = await signIn('demo@eastgate-pm.com', 'demo123456');
+    if (error) {
+      setError(error);
+      setDemoLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="bg-white rounded-2xl border border-gray-100 p-8 w-full max-w-sm">
@@ -28,6 +39,22 @@ export default function Login() {
         <div className="mb-8">
           <h1 className="text-lg font-medium text-gray-900">Eastgate PM</h1>
           <p className="text-sm text-gray-400 mt-1">Sign in to your workspace</p>
+        </div>
+
+        {/* Demo button */}
+        <button
+          onClick={handleDemo}
+          disabled={demoLoading || loading}
+          className="w-full py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed mb-4"
+        >
+          {demoLoading ? 'Loading demo...' : '▶ View live demo'}
+        </button>
+
+        {/* Divider */}
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex-1 h-px bg-gray-100" />
+          <span className="text-xs text-gray-400">or sign in</span>
+          <div className="flex-1 h-px bg-gray-100" />
         </div>
 
         {/* Form */}
