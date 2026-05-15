@@ -115,10 +115,11 @@ src/
 - [x] Supabase database integration (persistent data)
 - [x] User authentication (Supabase Auth + protected routes)
 - [x] GitHub Actions CI/CD pipeline
+- [x] Mobile responsive layout
 - [ ] Timer persistence — sync running timer seconds to database every 10 seconds
 - [ ] Real-time multi-user timer sync
 - [ ] PDF export for generated reports
-- [ ] Mobile responsive layout
+
 
 ---
 
