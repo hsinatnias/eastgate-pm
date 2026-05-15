@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 
 interface TimeEntry {
   id: string;
@@ -10,14 +11,6 @@ interface TimeEntry {
   billable: number;
   running: boolean;
 }
-
-const initialEntries: TimeEntry[] = [
-  { id: '1', member: 'Yuki Tanaka', initials: 'YT', task: 'SaaS Portal UI Review', project: 'SaaS Portal', seconds: 1394, billable: 5804, running: true },
-  { id: '2', member: 'Kenji Ito', initials: 'KJ', task: 'OAuth2 integration', project: 'SaaS Portal', seconds: 11520, billable: 48000, running: false },
-  { id: '3', member: 'Aiko Nakamura', initials: 'AI', task: 'Payment gateway module', project: 'E-commerce', seconds: 9900, billable: 41250, running: false },
-  { id: '4', member: 'Ryo Suzuki', initials: 'RY', task: 'Mobile push notifications', project: 'Mobile App', seconds: 5400, billable: 22500, running: false },
-  { id: '5', member: 'Kenji Ito', initials: 'KJ', task: 'Code review', project: 'SaaS Portal', seconds: 2700, billable: 11250, running: false },
-];
 
 const assigneeColors: Record<string, string> = {
   YT: 'bg-blue-100 text-blue-600',
@@ -44,10 +37,28 @@ const stats = [
 ];
 
 export default function TimeTracking() {
-  const [entries, setEntries] = useState<TimeEntry[]>(initialEntries);
+  const [entries, setEntries] = useState<TimeEntry[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // useEffect runs after every render
-  // The empty array [] means "only set this up once when component mounts"
+  useEffect(() => {
+    const fetchEntries = async () => {
+      const { data, error } = await supabase
+        .from('time_entries')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching time entries:', error);
+      } else {
+        setEntries(data || []);
+      }
+      setLoading(false);
+    };
+
+    fetchEntries();
+  }, []);
+
+  // Live timer — ticks every second for running entries
   useEffect(() => {
     const timer = setInterval(() => {
       setEntries((prev) =>
@@ -59,11 +70,11 @@ export default function TimeTracking() {
       );
     }, 1000);
 
-    // Cleanup function — stops the timer when component unmounts
     return () => clearInterval(timer);
   }, []);
 
-  const handleToggle = (id: string) => {
+  const handleToggle = async (id: string) => {
+    // Optimistic update
     setEntries((prev) =>
       prev.map((entry) =>
         entry.id === id
@@ -71,7 +82,31 @@ export default function TimeTracking() {
           : { ...entry, running: false }
       )
     );
+
+    // Find the entry being toggled
+    const entry = entries.find((e) => e.id === id);
+    if (!entry) return;
+
+    // Stop all other running entries in database
+    await supabase
+      .from('time_entries')
+      .update({ running: false })
+      .neq('id', id);
+
+    // Toggle the selected entry in database
+    await supabase
+      .from('time_entries')
+      .update({ running: !entry.running })
+      .eq('id', id);
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-sm text-gray-400">Loading time entries...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-5">

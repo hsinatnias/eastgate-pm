@@ -1,22 +1,12 @@
-import { useState } from 'react';
-import type{ Task, Column, Status } from '../types/index';
+import { useState, useEffect } from 'react';
+import type { Task, Column } from '../types/index';
+import { supabase } from '../lib/supabase';
 
 const columns: Column[] = [
   { id: 'backlog', label: 'Backlog', count: 0 },
   { id: 'inprogress', label: 'In Progress', count: 0 },
   { id: 'review', label: 'Review', count: 0 },
   { id: 'done', label: 'Done', count: 0 },
-];
-
-const initialTasks: Task[] = [
-  { id: '1', title: 'OAuth2 integration', project: 'SaaS Portal', priority: 'high', assignee: 'KJ', status: 'inprogress' },
-  { id: '2', title: 'Payment gateway module', project: 'E-commerce', priority: 'high', assignee: 'AI', status: 'inprogress' },
-  { id: '3', title: 'Mobile push notifications', project: 'Mobile App', priority: 'mid', assignee: 'RY', status: 'inprogress' },
-  { id: '4', title: 'User onboarding redesign', project: 'SaaS Portal', priority: 'high', assignee: 'YT', status: 'review' },
-  { id: '5', title: 'Database optimization', project: 'E-commerce', priority: 'mid', assignee: 'AI', status: 'review' },
-  { id: '6', title: 'CI/CD pipeline setup', project: 'SaaS Portal', priority: 'mid', assignee: 'KJ', status: 'done' },
-  { id: '7', title: 'Design system audit', project: 'SaaS Portal', priority: 'low', assignee: 'RY', status: 'backlog' },
-  { id: '8', title: 'API rate limiting', project: 'SaaS Portal', priority: 'mid', assignee: 'KJ', status: 'backlog' },
 ];
 
 const priorityColors = {
@@ -33,8 +23,27 @@ const assigneeColors = [
 ];
 
 export default function Kanban() {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [dragging, setDragging] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching tasks:', error);
+      } else {
+        setTasks(data || []);
+      }
+      setLoading(false);
+    };
+
+    fetchTasks();
+  }, []);
 
   const getTasksByStatus = (status: string) =>
     tasks.filter((t) => t.status === status);
@@ -43,17 +52,37 @@ export default function Kanban() {
     setDragging(taskId);
   };
 
-  const handleDrop = (status: Status) => {
+  const handleDrop = async (status: import('../types/index').Status) => {
     if (!dragging) return;
+
+    // Optimistic update — update UI immediately
     setTasks((prev) =>
       prev.map((t) => (t.id === dragging ? { ...t, status } : t))
     );
+
+    // Then update database
+    const { error } = await supabase
+      .from('tasks')
+      .update({ status })
+      .eq('id', dragging);
+
+    if (error) {
+      console.error('Error updating task status:', error);
+    }
+
     setDragging(null);
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-sm text-gray-400">Loading tasks...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-medium text-gray-900">Task board</h2>
         <button className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors">
@@ -61,7 +90,6 @@ export default function Kanban() {
         </button>
       </div>
 
-      {/* Kanban columns */}
       <div className="grid grid-cols-4 gap-3">
         {columns.map((col) => {
           const colTasks = getTasksByStatus(col.id);
@@ -72,7 +100,6 @@ export default function Kanban() {
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => handleDrop(col.id)}
             >
-              {/* Column header */}
               <div className="flex items-center justify-between px-2 py-1.5 mb-2">
                 <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                   {col.label}
@@ -82,7 +109,6 @@ export default function Kanban() {
                 </span>
               </div>
 
-              {/* Tasks */}
               <div className="flex flex-col gap-2">
                 {colTasks.map((task, i) => (
                   <div
