@@ -1,6 +1,7 @@
 interface SidebarProps {
   activePage: string;
   onNavigate: (page: string) => void;
+  onSignOut: () => void;
 }
 
 const navItems = [
@@ -12,7 +13,7 @@ const navItems = [
   { label: 'AI Assistant', icon: '✦', page: 'ai' },
 ];
 
-export default function Sidebar({ activePage, onNavigate }: SidebarProps) {
+export default function Sidebar({ activePage, onNavigate, onSignOut }: SidebarProps) {
   return (
     <aside className="w-52 h-screen bg-white border-r border-gray-100 flex flex-col">
       <div className="px-4 py-4 border-b border-gray-100">
@@ -38,14 +39,20 @@ export default function Sidebar({ activePage, onNavigate }: SidebarProps) {
       </nav>
 
       <div className="px-2 py-3 border-t border-gray-100">
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer hover:bg-gray-50">
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg">
           <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs font-medium text-blue-600">
             A
           </div>
-          <div>
+          <div className="flex-1">
             <p className="text-xs font-medium text-gray-900">Anish</p>
             <p className="text-xs text-gray-400">Admin</p>
           </div>
+          <button
+            onClick={onSignOut}
+            className="text-xs text-gray-400 hover:text-gray-700 transition-colors"
+          >
+            Out
+          </button>
         </div>
       </div>
     </aside>
