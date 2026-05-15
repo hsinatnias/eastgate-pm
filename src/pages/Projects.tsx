@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from '../lib/supabase';
 
 type Status = 'Active' | 'Review' | 'On hold' | 'Done';
 
@@ -14,16 +15,7 @@ interface Project {
   team: string[];
 }
 
-const projects: Project[] = [
-  { id: '1', name: 'SaaS Portal v2', client: 'Nihon Finance Ltd', status: 'Active', progress: 68, due: 'Jun 30', budget: '¥2.4M', color: 'bg-blue-500', team: ['YT', 'KJ'] },
-  { id: '2', name: 'Mobile App MVP', client: 'TokyoTech Inc', status: 'Review', progress: 91, due: 'May 20', budget: '¥1.8M', color: 'bg-purple-500', team: ['AI', 'RY'] },
-  { id: '3', name: 'E-commerce Platform', client: 'Sakura Retail Co', status: 'Active', progress: 34, due: 'Aug 15', budget: '¥3.2M', color: 'bg-red-500', team: ['AI', 'KJ'] },
-  { id: '4', name: 'API Integration Hub', client: 'Osaka Logistics', status: 'On hold', progress: 55, due: 'TBD', budget: '¥960K', color: 'bg-green-500', team: ['RY'] },
-  { id: '5', name: 'HR Dashboard SaaS', client: 'Inhouse', status: 'Active', progress: 12, due: 'Sep 01', budget: '—', color: 'bg-orange-500', team: ['YT'] },
-  { id: '6', name: 'Analytics Module', client: 'Nihon Finance Ltd', status: 'Active', progress: 78, due: 'Jun 10', budget: '¥880K', color: 'bg-blue-500', team: ['KJ', 'RY'] },
-  { id: '7', name: 'Customer Portal', client: 'TokyoTech Inc', status: 'Active', progress: 45, due: 'Jul 22', budget: '¥1.5M', color: 'bg-purple-500', team: ['AI'] },
-  { id: '8', name: 'Legacy Migration', client: 'Sakura Retail Co', status: 'Done', progress: 100, due: 'May 01', budget: '¥2.1M', color: 'bg-red-500', team: ['YT', 'KJ', 'RY'] },
-];
+
 
 const statusStyles: Record<Status, string> = {
   'Active': 'bg-green-100 text-green-600',
@@ -42,12 +34,41 @@ const assigneeColors: Record<string, string> = {
 const tabs = ['All projects', 'Active', 'Review', 'On hold', 'Done'];
 
 export default function Projects() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('All projects');
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching projects:', error);
+      } else {
+        setProjects(data || []);
+      }
+      setLoading(false);
+    };
+
+    fetchProjects();
+  }, []);
 
   const filtered = activeTab === 'All projects'
     ? projects
     : projects.filter((p) => p.status === activeTab);
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-sm text-gray-400">Loading projects...</p>
+      </div>
+    );
+  }
+
+  
   return (
     <div className="flex flex-col gap-4">
 
@@ -135,7 +156,7 @@ export default function Projects() {
 
             {/* Team */}
             <div className="col-span-1 flex -space-x-1">
-              {project.team.map((member) => (
+              {(project.team || []).map((member) => (
                 <div
                   key={member}
                   className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium border border-white ${assigneeColors[member]}`}
