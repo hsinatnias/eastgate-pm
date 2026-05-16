@@ -40,19 +40,36 @@ export default function Projects() {
   const [activeTab, setActiveTab] = useState('All projects');
   const [showAddProject, setShowAddProject] = useState(false);
 
-      const fetchProjects = async () => {
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .order('created_at', { ascending: false });
+  const fetchProjects = async () => {
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching projects:', error);
-      } else {
-        setProjects(data || []);
-      }
-      setLoading(false);
-    };
+    if (error) {
+      console.error('Error fetching projects:', error);
+    } else {
+      setProjects(data || []);
+    }
+    setLoading(false);
+  };
+
+  const handleDeleteProject = async (id: string) => {
+    const confirmed = window.confirm('Are you sure you want to delete this project? This cannot be undone.');
+    if (!confirmed) return;
+
+    setProjects((prev) => prev.filter((p) => p.id !== id));
+
+    const { error } = await supabase
+      .from('projects')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting project:', error);
+      fetchProjects();
+    }
+  };
 
   useEffect(() => {
 
@@ -111,23 +128,24 @@ export default function Projects() {
 
         {/* Column headers - hidden on mobile */}
         <div className="hidden lg:grid grid-cols-12 px-5 py-3 border-b border-gray-50 bg-gray-50">
-          <div className="col-span-4 text-xs font-medium text-gray-400">Project</div>
+          <div className="col-span-3 text-xs font-medium text-gray-400">Project</div>
           <div className="col-span-2 text-xs font-medium text-gray-400">Client</div>
           <div className="col-span-1 text-xs font-medium text-gray-400">Status</div>
           <div className="col-span-2 text-xs font-medium text-gray-400">Progress</div>
           <div className="col-span-1 text-xs font-medium text-gray-400">Due</div>
           <div className="col-span-1 text-xs font-medium text-gray-400">Budget</div>
           <div className="col-span-1 text-xs font-medium text-gray-400">Team</div>
+          <div className="col-span-1"></div>
         </div>
 
         {/* Rows */}
         {filtered.map((project) => (
         <div
           key={project.id}
-          className="flex flex-col lg:grid lg:grid-cols-12 px-5 py-3 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer last:border-0 gap-2 lg:gap-0 lg:items-center"
+          className="flex flex-col lg:grid lg:grid-cols-12 px-5 py-3 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer last:border-0 gap-2 lg:gap-0 lg:items-center group"
         >
           {/* Project name */}
-          <div className="col-span-4 flex items-center gap-2">
+          <div className="col-span-3 flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full ${project.color} flex-shrink-0`} />
             <span className="text-xs font-medium text-gray-900">{project.name}</span>
           </div>
@@ -167,6 +185,19 @@ export default function Projects() {
                 {member[0]}
               </div>
             ))}
+          </div>
+          
+          {/* Delete button */}
+          <div className="col-span-1 flex justify-end">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteProject(project.id);
+              }}
+              className="opacity-0 group-hover:opacity-100 flex items-center gap-1 px-2 py-1 bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-600 rounded-lg transition-all text-xs font-medium"
+            >
+              🗑 Delete
+            </button>
           </div>
         </div>
       ))}

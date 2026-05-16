@@ -78,6 +78,24 @@ export default function Kanban({ showAddTask = false, onAddTaskClose }: KanbanPr
     setDragging(null);
   };
 
+  const handleDeleteTask = async (id: string) => {
+    const confirmed = window.confirm('Are you sure you want to delete this task?');
+    if (!confirmed) return;
+
+    setTasks((prev) => prev.filter((t) => t.id !== id));
+
+    const { error } = await supabase
+      .from('tasks')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting task:', error);
+      fetchTasks();
+    }
+  };
+
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -119,15 +137,26 @@ export default function Kanban({ showAddTask = false, onAddTaskClose }: KanbanPr
 
               <div className="flex flex-col gap-2">
                 {colTasks.map((task, i) => (
-                  <div
+                 <div
                     key={task.id}
                     draggable
                     onDragStart={() => handleDragStart(task.id)}
-                    className="bg-white border border-gray-100 rounded-lg p-3 cursor-grab active:cursor-grabbing hover:border-gray-200 hover:shadow-sm transition-all"
+                    className="bg-white border border-gray-100 rounded-lg p-3 cursor-grab active:cursor-grabbing hover:border-gray-200 hover:shadow-sm transition-all group"
                   >
-                    <p className="text-xs font-medium text-gray-900 mb-2 leading-snug">
-                      {task.title}
-                    </p>
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <p className="text-xs font-medium text-gray-900 leading-snug flex-1">
+                        {task.title}
+                      </p>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteTask(task.id);
+                        }}
+                        className="opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-400 hover:bg-red-50 rounded px-1 transition-all text-xs leading-none flex-shrink-0"
+                      >
+                        🗑
+                      </button>
+                    </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
                         <span className={`text-xs px-1.5 py-0.5 rounded-md font-medium ${priorityColors[task.priority]}`}>
