@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Task, Column } from '../types/index';
 import { supabase } from '../lib/supabase';
+import AddTaskModal from '../components/AddTaskModal';
 
 const columns: Column[] = [
   { id: 'backlog', label: 'Backlog', count: 0 },
@@ -22,26 +23,32 @@ const assigneeColors = [
   'bg-teal-100 text-teal-600',
 ];
 
-export default function Kanban() {
+interface KanbanProps {
+  showAddTask?: boolean;
+  onAddTaskClose?: () => void;
+}
+
+export default function Kanban({ showAddTask = false, onAddTaskClose }: KanbanProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [dragging, setDragging] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showLocalAddTask, setShowLocalAddTask] = useState(false);
+
+  const fetchTasks = async () => {
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching tasks:', error);
+    } else {
+      setTasks(data || []);
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      const { data, error } = await supabase
-        .from('tasks')
-        .select('*')
-        .order('created_at', { ascending: true });
-
-      if (error) {
-        console.error('Error fetching tasks:', error);
-      } else {
-        setTasks(data || []);
-      }
-      setLoading(false);
-    };
-
     fetchTasks();
   }, []);
 
@@ -55,12 +62,10 @@ export default function Kanban() {
   const handleDrop = async (status: import('../types/index').Status) => {
     if (!dragging) return;
 
-    // Optimistic update — update UI immediately
     setTasks((prev) =>
       prev.map((t) => (t.id === dragging ? { ...t, status } : t))
     );
 
-    // Then update database
     const { error } = await supabase
       .from('tasks')
       .update({ status })
@@ -85,7 +90,10 @@ export default function Kanban() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-medium text-gray-900">Task board</h2>
-        <button className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors">
+        <button
+          onClick={() => setShowLocalAddTask(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors"
+        >
           + Add task
         </button>
       </div>
@@ -138,6 +146,16 @@ export default function Kanban() {
           );
         })}
       </div>
+
+      {(showAddTask || showLocalAddTask) && (
+        <AddTaskModal
+          onClose={() => {
+            setShowLocalAddTask(false);
+            onAddTaskClose?.();
+          }}
+          onTaskAdded={fetchTasks}
+        />
+      )}
     </div>
   );
 }

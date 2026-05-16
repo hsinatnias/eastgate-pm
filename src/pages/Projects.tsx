@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from '../lib/supabase';
+import AddProjectModal from '../components/AddProjectModal';
 
 type Status = 'Active' | 'Review' | 'On hold' | 'Done';
 
@@ -37,9 +38,9 @@ export default function Projects() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('All projects');
+  const [showAddProject, setShowAddProject] = useState(false);
 
-  useEffect(() => {
-    const fetchProjects = async () => {
+      const fetchProjects = async () => {
       const { data, error } = await supabase
         .from('projects')
         .select('*')
@@ -52,6 +53,9 @@ export default function Projects() {
       }
       setLoading(false);
     };
+
+  useEffect(() => {
+
 
     fetchProjects();
   }, []);
@@ -77,7 +81,10 @@ export default function Projects() {
         <h2 className="text-sm font-medium text-gray-900">
           Projects ({filtered.length})
         </h2>
-        <button className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors">
+        <button
+          onClick={() => setShowAddProject(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors"
+        >
           + New project
         </button>
       </div>
@@ -164,6 +171,12 @@ export default function Projects() {
         </div>
       ))}
       </div>
+      {showAddProject && (
+        <AddProjectModal
+          onClose={() => setShowAddProject(false)}
+          onProjectAdded={fetchProjects}
+        />
+      )}
     </div>
   );
 }

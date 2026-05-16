@@ -14,6 +14,8 @@ import Login from './pages/Login';
 function AppContent(){
   const { user, loading, signOut } = useAuth();
   const [page, setPage] = useState('dashboard');
+  const [showAddTask, setaddnewtask] = useState(false);
+
 
   if(loading){
     return(
@@ -26,10 +28,16 @@ function AppContent(){
   if(!user){
     return <Login/>;
   }
+  const handleNewTask = () => {
+    // placeholder for creating a new task — implement as needed
+    setPage('tasks');
+    setaddnewtask(true);
+  };
+
   return (
-    <Layout activePage={page} onNavigate={setPage} onSignOut={signOut}>
+    <Layout activePage={page} onNavigate={setPage} onSignOut={signOut} onNewTask={handleNewTask}>
       {page === 'dashboard' && <Dashboard />}
-      {page === 'tasks' && <Kanban />}
+      {page === 'tasks' && <Kanban showAddTask={showAddTask} onAddTaskClose={() => setaddnewtask(false)} />}
       {page === 'time' && <TimeTracking />}
       {page === 'ai' && <AIAssistant />}
       {page === 'projects' && <Projects />}
@@ -49,3 +57,4 @@ function App() {
 }
 
 export default App;
+

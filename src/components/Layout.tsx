@@ -7,9 +7,10 @@ interface LayoutProps {
   activePage: string;
   onNavigate: (page: string) => void;
   onSignOut: () => void;
+  onNewTask: () => void;
 }
 
-export default function Layout({ children, activePage, onNavigate, onSignOut }: LayoutProps) {
+export default function Layout({ children, activePage, onNavigate, onSignOut, onNewTask }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleNavigate = (page: string) => {
@@ -41,7 +42,7 @@ export default function Layout({ children, activePage, onNavigate, onSignOut }: 
 
       {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-        <Header onMenuClick={() => setSidebarOpen(true)} />
+        <Header onMenuClick={() => setSidebarOpen(true)} onNewTask={onNewTask} />
         <main className="flex-1 overflow-y-auto p-4 lg:p-5">
           {children}
         </main>
