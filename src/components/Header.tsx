@@ -1,8 +1,9 @@
 interface HeaderProps {
   onMenuClick: () => void;
+  onNewTask: () => void;
 }
 
-export default function Header({ onMenuClick }: HeaderProps) {
+export default function Header({ onMenuClick, onNewTask }: HeaderProps) {
   return (
     <header className="h-13 bg-white border-b border-gray-100 flex items-center justify-between px-4 lg:px-5">
       {/* Left side */}
@@ -28,7 +29,9 @@ export default function Header({ onMenuClick }: HeaderProps) {
         </div>
 
         {/* New task button */}
-        <button className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors">
+        <button 
+        onClick={onNewTask}
+        className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors">
           <span className="hidden sm:inline">+ New task</span>
           <span className="sm:hidden">+</span>
         </button>
