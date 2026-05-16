@@ -116,6 +116,8 @@ src/
 - [x] User authentication (Supabase Auth + protected routes)
 - [x] GitHub Actions CI/CD pipeline
 - [x] Mobile responsive layout
+- [x] Full CRUD — add task and project modals
+- [ ] Delete task and project
 - [ ] Timer persistence — sync running timer seconds to database every 10 seconds
 - [ ] Real-time multi-user timer sync
 - [ ] PDF export for generated reports
