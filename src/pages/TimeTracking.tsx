@@ -63,7 +63,6 @@ export default function TimeTracking() {
       if (error) {
         console.error('Error fetching time entries:', error);
       } else {
-        // Calculate real seconds for running entries
         const entriesWithTime = (data || []).map((entry) => ({
           ...entry,
           seconds: calculateSeconds(entry),
@@ -74,6 +73,33 @@ export default function TimeTracking() {
     };
 
     fetchEntries();
+
+    // Real-time subscription
+    const subscription = supabase
+      .channel('time_entries_changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'time_entries' },
+        (payload) => {
+          if (payload.eventType === 'UPDATE') {
+            setEntries((prev) =>
+              prev.map((entry) =>
+                entry.id === payload.new.id
+                  ? {
+                      ...payload.new as TimeEntry,
+                      seconds: calculateSeconds(payload.new as TimeEntry),
+                    }
+                  : entry
+              )
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
   }, []);
 
   // Live timer — ticks every second for running entries

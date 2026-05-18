@@ -48,9 +48,37 @@ export default function Kanban({ showAddTask = false, onAddTaskClose }: KanbanPr
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchTasks();
-  }, []);
+useEffect(() => {
+  fetchTasks();
+
+  // Real-time subscription
+  const subscription = supabase
+    .channel('tasks_changes')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'tasks' },
+      (payload) => {
+        if (payload.eventType === 'INSERT') {
+          setTasks((prev) => [...prev, payload.new as Task]);
+        }
+        if (payload.eventType === 'UPDATE') {
+          setTasks((prev) =>
+            prev.map((t) =>
+              t.id === payload.new.id ? (payload.new as Task) : t
+            )
+          );
+        }
+        if (payload.eventType === 'DELETE') {
+          setTasks((prev) => prev.filter((t) => t.id !== payload.old.id));
+        }
+      }
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(subscription);
+  };
+}, []);
 
   const getTasksByStatus = (status: string) =>
     tasks.filter((t) => t.status === status);
