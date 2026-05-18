@@ -117,9 +117,9 @@ src/
 - [x] GitHub Actions CI/CD pipeline
 - [x] Mobile responsive layout
 - [x] Full CRUD — add, edit, and delete tasks and projects
-- [x] Timer persistence — sync running timer seconds to database every 10 seconds
-- [ ] Real-time multi-user timer sync
-- [ ] PDF export for generated reports
+- [x] Timer persistence — sync running timer seconds to database
+- [x] Real-time multi-user sync — tasks and timers update instantly
+- [x] PDF export for generated client reports
 
 
 ---
